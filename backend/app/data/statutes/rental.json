@@ -1,0 +1,44 @@
+[
+  {
+    "act": "Transfer of Property Act, 1882",
+    "section": "Section 108",
+    "text": "Section 108 of the Transfer of Property Act, 1882 outlines the rights and liabilities of the lessor and lessee. The lessee is bound to pay rent, keep the property in good repair (excluding reasonable wear and tear), and not use the property for purposes other than agreed upon. The lessor is bound to disclose material defects and not to interfere with the lessee's lawful use.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/2338",
+    "document_type": "rental",
+    "verified": true
+  },
+  {
+    "act": "Delhi Rent Control Act, 1958",
+    "section": "Section 14 — Eviction Grounds",
+    "text": "Under Section 14 of the Delhi Rent Control Act, 1958, a landlord cannot evict a tenant except on specified grounds including: (a) non-payment of rent, (b) subletting without consent, (c) causing damage to the premises, (d) the landlord's bona fide need for personal occupation. The tenant has the right to contest eviction proceedings.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/1844",
+    "document_type": "rental",
+    "verified": true
+  },
+  {
+    "act": "Maharashtra Rent Control Act, 1999",
+    "section": "Section 16 — Security Deposit",
+    "text": "Under the Maharashtra Rent Control Act, 1999, the security deposit for residential premises shall not exceed three months' rent. The deposit must be refunded to the tenant upon termination of tenancy, subject to deductions for unpaid rent or damages beyond reasonable wear and tear.",
+    "source_url": "https://indiacode.nic.in",
+    "document_type": "rental",
+    "verified": false,
+    "todo": "TODO: verify exact section number and deposit cap against indiacode.nic.in — Maharashtra Rent Control Act, 1999"
+  },
+  {
+    "act": "Karnataka Rent Act, 1999",
+    "section": "Section 22 — Notice Period",
+    "text": "The Karnataka Rent Act requires that either party provide a minimum of 15 days' notice for monthly tenancies. For leases with a fixed term, the tenancy terminates at the end of the term unless renewed.",
+    "source_url": "https://indiacode.nic.in",
+    "document_type": "rental",
+    "verified": false,
+    "todo": "TODO: verify section number and notice period against Karnataka Rent Act, 1999"
+  },
+  {
+    "act": "Model Tenancy Act, 2021",
+    "section": "Section 4 — Written Agreement",
+    "text": "Under the Model Tenancy Act, 2021 (advisory, adopted by some states), every tenancy agreement must be in writing and registered. The security deposit for residential premises shall not exceed two months' rent. The agreement must specify the rent, period of tenancy, and responsibilities for structural and non-structural repairs.",
+    "source_url": "https://legislative.gov.in/sites/default/files/Model%20Tenancy%20Act%202021.pdf",
+    "document_type": "rental",
+    "verified": true
+  }
+]

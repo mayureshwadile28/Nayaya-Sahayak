@@ -1,0 +1,44 @@
+[
+  {
+    "act": "Indian Contract Act, 1872",
+    "section": "Section 27 — Restraint of Trade",
+    "text": "Section 27 of the Indian Contract Act, 1872: Every agreement by which any one is restrained from exercising a lawful profession, trade or business of any kind, is to that extent void. This is why post-employment non-compete clauses are generally unenforceable in India, though non-solicitation and confidentiality clauses during employment are typically upheld.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/2187",
+    "document_type": "employment",
+    "verified": true
+  },
+  {
+    "act": "Payment of Wages Act, 1936",
+    "section": "Section 5 — Time of Payment",
+    "text": "Section 5 of the Payment of Wages Act, 1936 requires that wages be paid before the expiry of the 7th day after the wage period for establishments employing less than 1000 persons, and before the 10th day for larger establishments. Unauthorized deductions from wages are prohibited under Section 7.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/2199",
+    "document_type": "employment",
+    "verified": true
+  },
+  {
+    "act": "Industrial Disputes Act, 1947",
+    "section": "Section 25F — Retrenchment",
+    "text": "Section 25F of the Industrial Disputes Act, 1947 provides that no workman employed for a continuous period of not less than one year shall be retrenched unless: (a) one month's notice or wages in lieu of notice is given, (b) retrenchment compensation equal to 15 days' average pay for every completed year of service is paid, and (c) notice is served to the appropriate Government.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/2152",
+    "document_type": "employment",
+    "verified": true
+  },
+  {
+    "act": "Code on Social Security, 2020",
+    "section": "Chapter IX — Unorganised Workers, Gig Workers, Platform Workers",
+    "text": "The Code on Social Security, 2020, Chapter IX, recognizes gig workers and platform workers and provides for the framing of social security schemes for them. The Central Government may notify schemes for life and disability cover, health and maternity benefits, old age protection, and other benefits as prescribed.",
+    "source_url": "https://labour.gov.in/sites/default/files/SS_Code_Gazette.pdf",
+    "document_type": "employment",
+    "verified": false,
+    "todo": "TODO: verify specific sections of Code on Social Security, 2020 regarding gig worker protections — implementation varies by state"
+  },
+  {
+    "act": "Industrial Employment (Standing Orders) Act, 1946",
+    "section": "Schedule I — Termination",
+    "text": "The Industrial Employment (Standing Orders) Act, 1946 requires employers in industrial establishments with 100+ workers to define conditions of employment. Model Standing Orders (Schedule I) specify that termination of service by an employer must include a notice period (typically one month) or payment in lieu of notice, and reasons for termination must be communicated in writing.",
+    "source_url": "https://indiacode.nic.in",
+    "document_type": "employment",
+    "verified": false,
+    "todo": "TODO: verify threshold of workers and specific provisions of Model Standing Orders against indiacode.nic.in"
+  }
+]

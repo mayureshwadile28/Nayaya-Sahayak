@@ -1,0 +1,78 @@
+{
+  "nalsa_eligibility": {
+    "source": "Section 12, Legal Services Authorities Act, 1987",
+    "source_url": "https://nalsa.gov.in",
+    "note": "Free legal aid is provided to persons belonging to the following categories. Income threshold varies by state.",
+    "todo": "TODO: verify complete eligibility list and current income thresholds against https://nalsa.gov.in",
+    "categories": [
+      "Members of Scheduled Castes or Scheduled Tribes",
+      "Victims of trafficking in human beings or forced labour (begar)",
+      "Women and children",
+      "Persons with disability as defined under relevant legislation",
+      "Persons under circumstances of undeserved want (annual income below state-prescribed threshold)",
+      "Industrial workmen",
+      "Persons in custody (including protective custody)",
+      "Victims of mass disaster, ethnic violence, caste atrocity, flood, drought, earthquake, or industrial disaster",
+      "Persons with mental illness"
+    ]
+  },
+  "dlsa_contacts": {
+    "delhi": {
+      "authority": "Delhi State Legal Services Authority (DSLSA)",
+      "address": "Patiala House Courts Complex, New Delhi - 110001",
+      "phone": "011-23385921",
+      "website": "https://dslsa.org",
+      "helpline": "1516 (NALSA Helpline)",
+      "note": "TODO: verify current DSLSA address and phone number"
+    },
+    "maharashtra": {
+      "authority": "Maharashtra State Legal Services Authority",
+      "address": "High Court Building, Fort, Mumbai - 400032",
+      "phone": "022-22661531",
+      "website": "https://mslsa.gov.in",
+      "note": "TODO: verify current contact details"
+    },
+    "karnataka": {
+      "authority": "Karnataka State Legal Services Authority",
+      "address": "High Court Building, Ambedkar Veedhi, Bengaluru - 560001",
+      "phone": "080-22110925",
+      "website": "https://kslsa.kar.nic.in",
+      "note": "TODO: verify current contact details"
+    },
+    "tamil nadu": {
+      "authority": "Tamil Nadu State Legal Services Authority",
+      "address": "High Court Campus, Chennai - 600104",
+      "phone": "044-25301349",
+      "website": "https://tnslsa.gov.in",
+      "note": "TODO: verify current contact details"
+    },
+    "uttar pradesh": {
+      "authority": "Uttar Pradesh State Legal Services Authority",
+      "address": "Alopibagh, High Court Road, Allahabad - 211001",
+      "phone": "0532-2623806",
+      "website": "https://upslsa.gov.in",
+      "note": "TODO: verify current contact details"
+    }
+  },
+  "national_contacts": {
+    "nalsa": {
+      "name": "National Legal Services Authority (NALSA)",
+      "address": "12/11, Jam Nagar House, Shahjahan Road, New Delhi - 110011",
+      "phone": "011-23382778",
+      "helpline": "1516",
+      "website": "https://nalsa.gov.in",
+      "email": "nalsa-dla@nic.in"
+    },
+    "consumer_helpline": {
+      "name": "National Consumer Helpline",
+      "phone": "1800-11-4000",
+      "website": "https://consumerhelpline.gov.in",
+      "e_daakhil": "https://edaakhil.nic.in"
+    },
+    "labour_helpline": {
+      "name": "Shram Suvidha Portal",
+      "website": "https://shramsuvidha.gov.in",
+      "note": "TODO: verify current helpline number for labour complaints"
+    }
+  }
+}

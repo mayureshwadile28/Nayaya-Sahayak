@@ -1,0 +1,44 @@
+[
+  {
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 2(6) — Deficiency",
+    "text": "Section 2(6) of the Consumer Protection Act, 2019 defines 'deficiency' as any fault, imperfection, shortcoming or inadequacy in the quality, nature and manner of performance which is required to be maintained by or under any law or has been agreed to be performed by a person in pursuance of a contract.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/15256",
+    "document_type": "consumer",
+    "verified": true
+  },
+  {
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 2(7) — Defect",
+    "text": "Section 2(7) of the Consumer Protection Act, 2019 defines 'defect' as any fault, imperfection or shortcoming in the quality, quantity, potency, purity or standard which is required to be maintained by or under any law or is claimed by the trader in any manner.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/15256",
+    "document_type": "consumer",
+    "verified": true
+  },
+  {
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 34 — Jurisdiction of District Commission",
+    "text": "Section 34 of the Consumer Protection Act, 2019: A complaint shall be filed in the District Commission within the local limits of whose jurisdiction: (a) the opposite party actually and voluntarily resides or carries on business, or (b) where the cause of action, wholly or in part, arises. Pecuniary jurisdiction: up to Rs. 1 crore for District Commission.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/15256",
+    "document_type": "consumer",
+    "verified": true
+  },
+  {
+    "act": "Consumer Protection Act, 2019",
+    "section": "Section 35 — Filing of Complaint",
+    "text": "Section 35 of the Consumer Protection Act, 2019 allows complaints to be filed electronically. The e-Daakhil portal (https://edaakhil.nic.in) enables online filing. No fee is charged for complaints where the value of goods or services does not exceed Rs. 5 lakh.",
+    "source_url": "https://indiacode.nic.in/handle/123456789/15256",
+    "document_type": "consumer",
+    "verified": false,
+    "todo": "TODO: verify exact fee structure under Section 35 and Consumer Protection Rules, 2020"
+  },
+  {
+    "act": "Consumer Protection (E-Commerce) Rules, 2020",
+    "section": "Rule 4 — Duties of E-Commerce Entities",
+    "text": "The Consumer Protection (E-Commerce) Rules, 2020 require e-commerce entities to: display the total price of goods, provide information about return/refund/exchange/warranty policies, ensure no false or misleading advertisements, establish a grievance redressal mechanism, and appoint a grievance officer.",
+    "source_url": "https://consumeraffairs.nic.in",
+    "document_type": "consumer",
+    "verified": false,
+    "todo": "TODO: verify specific rule numbers of E-Commerce Rules, 2020 against consumeraffairs.nic.in"
+  }
+]

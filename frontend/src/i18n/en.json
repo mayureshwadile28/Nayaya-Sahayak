@@ -1,0 +1,82 @@
+{
+  "landing": {
+    "title": "Nyaya Sahayak",
+    "subtitle": "Your Legal Information Companion",
+    "tagline": "Understand your legal documents and know your rights — in plain language.",
+    "disclaimer": "⚖️ Nyaya Sahayak provides legal information and guidance to help you understand your documents and rights. It does NOT provide legal advice, and should not be used as a substitute for consulting a qualified lawyer. All information is for educational purposes only.",
+    "cta_upload": "Upload a Document",
+    "cta_describe": "Describe Your Situation",
+    "supported_docs": "Supported: Rental Agreements, Employment Contracts, Consumer Notices",
+    "language_label": "Language"
+  },
+  "upload": {
+    "title": "Upload or Describe",
+    "upload_heading": "Upload a Document",
+    "upload_desc": "Upload your rental agreement, employment contract, or consumer notice for analysis.",
+    "upload_formats": "Accepted: PDF, DOCX, JPG, PNG (max 10MB)",
+    "drag_drop": "Drag and drop your file here, or click to browse",
+    "describe_heading": "Describe Your Situation",
+    "describe_desc": "No document? No problem. Describe your legal situation and we'll help you understand your options.",
+    "describe_placeholder": "Describe your situation in detail. For example: 'My landlord is refusing to return my security deposit of ₹50,000 even though I gave proper notice and the apartment is in good condition...'",
+    "submit": "Analyze",
+    "uploading": "Processing your document...",
+    "or_divider": "OR"
+  },
+  "analysis": {
+    "title": "Analysis Results",
+    "summary_heading": "Summary",
+    "risks_heading": "Flagged Items",
+    "key_terms_heading": "Key Terms",
+    "parties_heading": "Parties",
+    "dates_heading": "Important Dates",
+    "amounts_heading": "Amounts",
+    "severity_high": "High Risk",
+    "severity_medium": "Medium Risk",
+    "severity_low": "Low Risk",
+    "no_risks": "No concerning items were identified.",
+    "ask_question": "Have a question about this document?",
+    "view_rights": "View Your Rights & Next Steps",
+    "export_brief": "Export Lawyer-Prep Brief"
+  },
+  "chat": {
+    "title": "Ask Questions",
+    "placeholder": "Ask a question about your document or situation...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "grounded_in": "Grounded in:",
+    "disclaimer": "Answers are based on your document and relevant legal provisions. This is not legal advice — please consult a qualified professional."
+  },
+  "rights": {
+    "title": "Your Rights & Next Steps",
+    "rights_heading": "Your Rights",
+    "forum_heading": "Where to Go",
+    "legal_aid_heading": "Free Legal Aid",
+    "eligibility_heading": "Who is Eligible for Free Legal Aid (NALSA)",
+    "contact_heading": "Contact Information",
+    "state_label": "Select Your State",
+    "state_placeholder": "e.g., Delhi, Maharashtra, Karnataka",
+    "filing_heading": "How to File",
+    "portal_heading": "Online Portal",
+    "verification_note": "Note: Contact details should be verified with the respective authorities before relying on them."
+  },
+  "export": {
+    "title": "Lawyer Preparation Brief",
+    "description": "This brief summarizes your document, highlights concerns, and lists questions for your lawyer or legal aid clinic.",
+    "download": "Download Brief",
+    "preview": "Preview",
+    "format_label": "Format"
+  },
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "retry": "Retry",
+    "document_type_rental": "Rental Agreement",
+    "document_type_employment": "Employment Agreement",
+    "document_type_consumer": "Consumer Dispute",
+    "document_type_unknown": "Document",
+    "disclaimer_short": "This is informational, not legal advice.",
+    "powered_by": "Powered by Nyaya Sahayak"
+  }
+}
