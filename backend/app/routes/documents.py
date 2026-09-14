@@ -66,6 +66,7 @@ async def upload_document(
             filename=filename,
             file_size=len(content),
             content_type=file.content_type,
+            content=content,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

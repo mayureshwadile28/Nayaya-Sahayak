@@ -49,3 +49,26 @@ class TestFileValidation:
     def test_one_byte_over_limit(self):
         with pytest.raises(ValueError, match="exceeds"):
             self.service.validate_file("over.pdf", 10 * 1024 * 1024 + 1, "application/pdf")
+
+    def test_valid_pdf_magic_bytes(self):
+        # Should pass when binary starts with %PDF
+        self.service.validate_file("legit.pdf", 1024, "application/pdf", content=b"%PDF-1.4 test binary data")
+
+    def test_reject_spoofed_pdf_magic_bytes(self):
+        # Should reject executable masquerading as a PDF
+        with pytest.raises(ValueError, match="valid PDF format"):
+            self.service.validate_file("malware.pdf", 1024, "application/pdf", content=b"MZ\x90\x00\x03\x00\x00\x00")
+
+    def test_reject_spoofed_png_magic_bytes(self):
+        # Should reject invalid header on png file
+        with pytest.raises(ValueError, match="valid PNG format"):
+            self.service.validate_file("fake.png", 1024, "image/png", content=b"RIFF\x00\x00\x00\x00WEBP")
+
+    def test_valid_docx_magic_bytes(self):
+        # Zip/DOCX PK magic bytes
+        self.service.validate_file(
+            "valid.docx", 1024,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            content=b"PK\x03\x04\x14\x00\x06\x00"
+        )
+

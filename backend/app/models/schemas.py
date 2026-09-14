@@ -1,13 +1,13 @@
 """Pydantic models for request/response schemas."""
 
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 # --- Enums ---
 
-class DocumentType(str, Enum):
+class DocumentType(StrEnum):
     """Supported document/situation types."""
 
     RENTAL = "rental"
@@ -16,7 +16,7 @@ class DocumentType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class RiskSeverity(str, Enum):
+class RiskSeverity(StrEnum):
     """Risk severity levels — always displayed with text label, never color alone."""
 
     HIGH = "high"
@@ -24,11 +24,12 @@ class RiskSeverity(str, Enum):
     LOW = "low"
 
 
-class Language(str, Enum):
+class Language(StrEnum):
     """Supported UI languages."""
 
     EN = "en"
     HI = "hi"
+
 
 
 # --- Request Models ---

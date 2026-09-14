@@ -84,7 +84,7 @@ class RAGService:
 
         if doc_chunks:
             context_parts.append("DOCUMENT EXCERPTS:")
-            for i, chunk in enumerate(doc_chunks, 1):
+            for chunk in doc_chunks:
                 context_parts.append(f"- {chunk['text']}")
             context_parts.append("")
 

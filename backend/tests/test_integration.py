@@ -97,9 +97,11 @@ class TestGeminiServiceMocked:
         mock_response = MagicMock()
         mock_response.text = ""
 
-        with patch.object(service.client.models, 'generate_content', return_value=mock_response):
-            with pytest.raises(ValueError, match="empty"):
-                service.generate(prompt="Test")
+        with (
+            patch.object(service.client.models, 'generate_content', return_value=mock_response),
+            pytest.raises(ValueError, match="empty"),
+        ):
+            service.generate(prompt="Test")
 
     def test_generate_handles_invalid_json(self):
         from pydantic import BaseModel, Field
@@ -113,9 +115,11 @@ class TestGeminiServiceMocked:
         mock_response = MagicMock()
         mock_response.text = "This is not JSON at all"
 
-        with patch.object(service.client.models, 'generate_content', return_value=mock_response):
-            with pytest.raises(ValueError, match="parse"):
-                service.generate(prompt="Test", response_schema=TestSchema)
+        with (
+            patch.object(service.client.models, 'generate_content', return_value=mock_response),
+            pytest.raises(ValueError, match="parse"),
+        ):
+            service.generate(prompt="Test", response_schema=TestSchema)
 
     def test_generate_extracts_json_from_markdown(self):
         from pydantic import BaseModel, Field

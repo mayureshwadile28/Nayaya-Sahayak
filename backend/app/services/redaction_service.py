@@ -107,11 +107,10 @@ class RedactionService:
                     for ent in doc.ents
                     if ent.label_ == "PERSON" and len(ent.text.strip()) > 2
                 ]
-                # Sort longest first to avoid substring collision
                 persons = sorted(set(persons), key=len, reverse=True)
-                for name in persons:
-                    pattern = re.compile(r"\b" + re.escape(name) + r"\b")
-                    redacted = pattern.sub("<PERSON>", redacted)
+                if persons:
+                    name_pattern = re.compile(r"\b(?:" + "|".join(map(re.escape, persons)) + r")\b")
+                    redacted = name_pattern.sub("<PERSON>", redacted)
             except Exception as e:
                 logger.warning("NER redaction error: %s", e)
 

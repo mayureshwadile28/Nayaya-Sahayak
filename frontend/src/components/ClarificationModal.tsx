@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 
 interface ClarificationModalProps {
@@ -8,7 +8,7 @@ interface ClarificationModalProps {
   isSubmitting: boolean;
 }
 
-export default function ClarificationModal({
+const ClarificationModal = React.memo(function ClarificationModal({
   questions,
   onSubmit,
   onSkip,
@@ -16,6 +16,16 @@ export default function ClarificationModal({
 }: ClarificationModalProps) {
   const [answers, setAnswers] = useState<string>('');
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting) {
+        onSkip();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onSkip, isSubmitting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +39,21 @@ export default function ClarificationModal({
   if (!questions || questions.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="clarification-modal-title"
+    >
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/30">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h2 id="clarification-modal-title" className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <svg
               className="w-6 h-6 text-blue-600 dark:text-blue-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -78,6 +94,7 @@ export default function ClarificationModal({
                 rows={4}
                 value={answers}
                 onChange={(e) => setAnswers(e.target.value)}
+                aria-label={t('common', 'Your Answers (Optional)')}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                 placeholder={t('common', 'Type your answers here...')}
               />
@@ -112,4 +129,6 @@ export default function ClarificationModal({
       </div>
     </div>
   );
-}
+});
+
+export default ClarificationModal;

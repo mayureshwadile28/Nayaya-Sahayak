@@ -42,15 +42,18 @@ select = [
     "PL",   # pylint subset
 ]
 ignore = [
-    "ANN101",  # missing type annotation for self
-    "ANN102",  # missing type annotation for cls
     "ANN401",  # dynamically typed expressions (typing.Any)
     "S101",    # assert used (ok in tests)
     "E501",    # line too long
     "S110",    # try-except-pass
     "E402",    # module level import not at top of file (for serverless sys.path)
+    "B008",    # FastAPI depends on Depends(), File(), Query() in parameter defaults
+    "PLC0415", # lazy imports for fast cold starts and memory efficiency in serverless
+    "PLR0912", # branches in parsing logic
     "PLR0913", # too many arguments to function (acceptable for service methods)
-    "PLR2004", # magic value used in comparison (acceptable for config validators)
+    "PLR0915", # statements in complex report generator
+    "PLR0917", # positional arguments
+    "PLR2004", # magic value used in comparison
     "RET504",  # unnecessary assignment before return
 ]
 

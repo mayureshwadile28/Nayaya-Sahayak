@@ -12,19 +12,27 @@ logger = logging.getLogger(__name__)
 class DocumentService:
     """Handles document upload validation and text extraction."""
 
-    def validate_file(self, filename: str, file_size: int, content_type: str | None) -> None:
-        """Validate uploaded file type and size.
+    def validate_file(
+        self,
+        filename: str,
+        file_size: int,
+        content_type: str | None,
+        content: bytes | None = None,
+    ) -> None:
+        """Validate uploaded file type, size, and binary magic bytes.
 
         Args:
             filename: Original filename.
             file_size: File size in bytes.
             content_type: MIME type of the file.
+            content: Raw byte content for magic bytes signature validation.
 
         Raises:
-            ValueError: If file type or size is invalid.
+            ValueError: If file type, size, or signature is invalid.
         """
         # Check file extension
-        ext = Path(filename).suffix.lower()
+        safe_filename = Path(filename).name
+        ext = Path(safe_filename).suffix.lower()
         if ext not in settings.allowed_extensions:
             msg = (
                 f"File type '{ext}' is not allowed. "
@@ -37,6 +45,17 @@ class DocumentService:
             max_mb = settings.max_upload_size / (1024 * 1024)
             msg = f"File size exceeds the {max_mb:.0f}MB limit."
             raise ValueError(msg)
+
+        # Magic bytes sniffing for file spoofing protection
+        if content:
+            if ext == ".pdf" and not content.startswith(b"%PDF"):
+                raise ValueError("Security check failed: File content does not match valid PDF format.")
+            if ext in (".docx", ".doc") and not content.startswith(b"PK\x03\x04"):
+                raise ValueError("Security check failed: File content does not match valid DOCX format.")
+            if ext == ".png" and not content.startswith(b"\x89PNG\r\n\x1a\n"):
+                raise ValueError("Security check failed: File content does not match valid PNG format.")
+            if ext in (".jpg", ".jpeg") and not content.startswith(b"\xff\xd8\xff"):
+                raise ValueError("Security check failed: File content does not match valid JPEG format.")
 
         # Check MIME type if provided
         if content_type and content_type not in settings.allowed_mime_types:
@@ -64,13 +83,13 @@ class DocumentService:
 
         if ext == ".pdf":
             return self._extract_from_pdf(file_path)
-        elif ext in (".docx", ".doc"):
+        if ext in (".docx", ".doc"):
             return self._extract_from_docx(file_path)
-        elif ext in (".jpg", ".jpeg", ".png"):
+        if ext in (".jpg", ".jpeg", ".png"):
             return self._extract_from_image(file_path)
-        else:
-            msg = f"Unsupported file type for text extraction: {ext}"
-            raise ValueError(msg)
+
+        msg = f"Unsupported file type for text extraction: {ext}"
+        raise ValueError(msg)
 
     def _extract_from_pdf(self, file_path: Path) -> tuple[str, int]:
         """Extract text from PDF using PyMuPDF."""
@@ -122,12 +141,9 @@ class DocumentService:
             from google.genai import types
 
             client = genai.Client(api_key=settings.gemini_api_key)
-
-            # Read image file
             image_bytes = file_path.read_bytes()
-
-            # Determine mime type
             ext = file_path.suffix.lower()
+
             mime_map = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
             mime_type = mime_map.get(ext, "image/jpeg")
 
@@ -160,14 +176,15 @@ class DocumentService:
         """
         settings.upload_dir.mkdir(parents=True, exist_ok=True)
         ext = Path(filename).suffix
-        temp_file = tempfile.NamedTemporaryFile(
+        with tempfile.NamedTemporaryFile(
             dir=str(settings.upload_dir),
             suffix=ext,
             delete=False,
-        )
-        temp_file.write(content)
-        temp_file.close()
+        ) as temp_file:
+            temp_file.write(content)
         return Path(temp_file.name)
+
+
 
     def cleanup_temp_file(self, file_path: Path) -> None:
         """Remove a temporary file."""

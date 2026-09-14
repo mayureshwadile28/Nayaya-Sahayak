@@ -1,11 +1,12 @@
 """Unit tests for in-memory session database, chat history, and TTL cleanup."""
 
 from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from app.models.database import (
-    _sessions,
     _cleanup_expired_sessions,
+    _sessions,
     clear_document_data,
     create_session,
     get_chat_history,
