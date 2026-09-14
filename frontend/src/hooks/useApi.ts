@@ -15,7 +15,8 @@ import type {
   SituationRequest,
 } from '../types';
 
-const API_BASE = 'http://localhost:8000/api';
+// Use Vercel rewrite path in production, local backend URL in development
+const API_BASE = import.meta.env.DEV ? 'http://localhost:8000/api' : '/api';
 
 class ApiError extends Error {
   status: number;
