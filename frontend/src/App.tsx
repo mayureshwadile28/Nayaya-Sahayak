@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, lazy, Suspense } from 'react';
 import type {
   AnalysisResponse,
   AppScreen,
@@ -8,12 +8,14 @@ import type {
 } from './types';
 import { useLanguage } from './hooks/useLanguage';
 import Landing from './pages/Landing';
-import Upload from './pages/Upload';
-import Analysis from './pages/Analysis';
-import Chat from './pages/Chat';
-import Rights from './pages/Rights';
-import Export from './pages/Export';
 import ClarificationModal from './components/ClarificationModal';
+
+// Lazy-load heavy pages to reduce initial bundle size
+const Upload = lazy(() => import('./pages/Upload'));
+const Analysis = lazy(() => import('./pages/Analysis'));
+const Chat = lazy(() => import('./pages/Chat'));
+const Rights = lazy(() => import('./pages/Rights'));
+const Export = lazy(() => import('./pages/Export'));
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('landing');
@@ -128,6 +130,14 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      {/* Skip Navigation Link for Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-accent-500 focus:text-white focus:rounded-lg"
+      >
+        Skip to main content
+      </a>
+
       {/* Navigation Header */}
       <nav
         className="sticky top-0 z-50 border-b border-white/10"
@@ -207,61 +217,71 @@ function App() {
         )}
 
         {currentScreen === 'upload' && (
-          <Upload
-            t={t}
-            language={language}
-            onDocumentProcessed={handleDocumentProcessed}
-            onBack={() => handleNavigate('landing')}
-            setIsLoading={setIsLoading}
-            setError={setError}
-            isLoading={isLoading}
-          />
+          <Suspense fallback={<div className="text-center py-12" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" /><p className="text-gray-400 mt-2">Loading...</p></div>}>
+            <Upload
+              t={t}
+              language={language}
+              onDocumentProcessed={handleDocumentProcessed}
+              onBack={() => handleNavigate('landing')}
+              setIsLoading={setIsLoading}
+              setError={setError}
+              isLoading={isLoading}
+            />
+          </Suspense>
         )}
 
         {currentScreen === 'analysis' && documentId && (
-          <Analysis
-            t={t}
-            language={language}
-            documentId={documentId}
-            analysis={analysis}
-            onAnalysisComplete={handleAnalysisComplete}
-            onNavigate={handleNavigate}
-            setIsLoading={setIsLoading}
-            setError={setError}
-            isLoading={isLoading}
-          />
+          <Suspense fallback={<div className="text-center py-12" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" /><p className="text-gray-400 mt-2">Analyzing document...</p></div>}>
+            <Analysis
+              t={t}
+              language={language}
+              documentId={documentId}
+              analysis={analysis}
+              onAnalysisComplete={handleAnalysisComplete}
+              onNavigate={handleNavigate}
+              setIsLoading={setIsLoading}
+              setError={setError}
+              isLoading={isLoading}
+            />
+          </Suspense>
         )}
 
         {currentScreen === 'chat' && documentId && (
-          <Chat
-            t={t}
-            language={language}
-            documentId={documentId}
-            messages={chatMessages}
-            onAddMessage={handleAddChatMessage}
-            onNavigate={handleNavigate}
-          />
+          <Suspense fallback={<div className="text-center py-12" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" /><p className="text-gray-400 mt-2">Loading chat...</p></div>}>
+            <Chat
+              t={t}
+              language={language}
+              documentId={documentId}
+              messages={chatMessages}
+              onAddMessage={handleAddChatMessage}
+              onNavigate={handleNavigate}
+            />
+          </Suspense>
         )}
 
         {currentScreen === 'rights' && documentType && (
-          <Rights
-            t={t}
-            documentType={documentType}
-            rights={rights}
-            onRightsLoaded={handleRightsLoaded}
-            onNavigate={handleNavigate}
-            setError={setError}
-          />
+          <Suspense fallback={<div className="text-center py-12" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" /><p className="text-gray-400 mt-2">Loading rights information...</p></div>}>
+            <Rights
+              t={t}
+              documentType={documentType}
+              rights={rights}
+              onRightsLoaded={handleRightsLoaded}
+              onNavigate={handleNavigate}
+              setError={setError}
+            />
+          </Suspense>
         )}
 
         {currentScreen === 'export' && documentId && analysis && (
-          <Export
-            t={t}
-            language={language}
-            documentId={documentId}
-            analysis={analysis}
-            onNavigate={handleNavigate}
-          />
+          <Suspense fallback={<div className="text-center py-12" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" /><p className="text-gray-400 mt-2">Preparing export...</p></div>}>
+            <Export
+              t={t}
+              language={language}
+              documentId={documentId}
+              analysis={analysis}
+              onNavigate={handleNavigate}
+            />
+          </Suspense>
         )}
       </main>
 

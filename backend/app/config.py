@@ -115,5 +115,14 @@ class Settings(BaseSettings):
         "extra": "ignore",
     }
 
+    def __repr__(self) -> str:
+        """Prevent API key from leaking in logs/tracebacks."""
+        return (
+            f"Settings(gemini_model={self.gemini_model!r}, "
+            f"backend_host={self.backend_host!r}, "
+            f"backend_port={self.backend_port!r}, "
+            f"gemini_api_key='***')"
+        )
+
 
 settings = Settings()

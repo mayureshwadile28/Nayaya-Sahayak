@@ -3,8 +3,11 @@
 All Gemini calls route through this module. The API key never leaves the backend.
 """
 
+import asyncio
+import hashlib
 import json
 import logging
+from collections import OrderedDict
 from typing import Any
 
 from google import genai
@@ -31,6 +34,9 @@ class GeminiService:
             logger.warning("GEMINI_API_KEY not set. Gemini calls will fail.")
         self.client = genai.Client(api_key=settings.gemini_api_key)
         self.model = settings.gemini_model
+        # LRU cache for identical prompts — avoids redundant API calls
+        self._cache: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        self._cache_max_size = 64
 
     @retry(
         stop=stop_after_attempt(3),
@@ -71,6 +77,17 @@ class GeminiService:
             config_kwargs["response_mime_type"] = "application/json"
             config_kwargs["response_schema"] = response_schema
 
+        # Check cache for identical prompt+schema combinations
+        schema_name = response_schema.__name__ if response_schema else "none"
+        cache_key = hashlib.sha256(
+            f"{prompt}::{system_instruction}::{schema_name}::{temperature}".encode()
+        ).hexdigest()
+
+        if cache_key in self._cache:
+            logger.debug("Cache hit for prompt hash %s", cache_key[:8])
+            self._cache.move_to_end(cache_key)
+            return self._cache[cache_key]
+
         generate_config = types.GenerateContentConfig(
             system_instruction=system_instruction,
             **config_kwargs,
@@ -96,10 +113,16 @@ class GeminiService:
 
         # Parse and validate JSON if schema provided
         if response_schema is not None:
-            return self._validate_json_response(response_text, response_schema)
+            result = self._validate_json_response(response_text, response_schema)
+        else:
+            result = {"text": response_text}
 
-        # Return raw text wrapped in dict
-        return {"text": response_text}
+        # Store in cache
+        self._cache[cache_key] = result
+        if len(self._cache) > self._cache_max_size:
+            self._cache.popitem(last=False)
+
+        return result
 
     def _validate_json_response(
         self,
@@ -176,6 +199,24 @@ class GeminiService:
             system_instruction=system_instruction,
             response_schema=response_schema,
             temperature=temperature,
+        )
+
+    async def generate_async(
+        self,
+        prompt: str,
+        system_instruction: str | None = None,
+        response_schema: type[BaseModel] | None = None,
+        temperature: float = 0.3,
+        max_output_tokens: int = 4096,
+    ) -> dict[str, Any]:
+        """Async wrapper for generate — runs in a thread to avoid blocking the event loop."""
+        return await asyncio.to_thread(
+            self.generate,
+            prompt=prompt,
+            system_instruction=system_instruction,
+            response_schema=response_schema,
+            temperature=temperature,
+            max_output_tokens=max_output_tokens,
         )
 
 

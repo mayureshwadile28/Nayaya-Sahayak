@@ -7,7 +7,7 @@ guaranteeing instant cold starts (<10ms) and full reliability on serverless envi
 import json
 import logging
 import re
-from collections import Counter
+from collections import Counter, OrderedDict
 from typing import Any
 
 from app.config import settings
@@ -26,6 +26,10 @@ class VectorStoreService:
         self._statutes: list[dict[str, Any]] = []
         self._document_chunks: dict[str, list[dict[str, Any]]] = {}
         self._initialized: bool = False
+        # Query result caches — avoids recomputing relevance for repeated queries
+        self._statute_cache: OrderedDict[str, list[dict[str, str]]] = OrderedDict()
+        self._doc_cache: OrderedDict[str, list[dict[str, str]]] = OrderedDict()
+        self._cache_max_size = 128
 
     def initialize(self) -> None:
         """Initialize collections and load statute corpus."""
@@ -67,6 +71,8 @@ class VectorStoreService:
                         "source": f"{act} — {section}" if section else act,
                         "verified": str(entry.get("verified", False)),
                         "tokens": self._tokenize(text),
+                        "token_counter": Counter(self._tokenize(text)),
+                        "token_len": len(self._tokenize(text)),
                     })
             except Exception as e:
                 logger.error("Failed to load statute file %s: %s", statute_file, e)
@@ -75,15 +81,14 @@ class VectorStoreService:
         """Tokenize text into lowercase words for keyword & relevance scoring."""
         return re.findall(r"[a-z0-9]+", text.lower())
 
-    def _compute_relevance(self, query_tokens: list[str], doc_tokens: list[str]) -> float:
+    def _compute_relevance(
+        self, query_tokens: list[str], doc_counter: Counter, doc_len: int
+    ) -> float:
         """Compute BM25-style term frequency relevance score between query and document."""
-        if not query_tokens or not doc_tokens:
+        if not query_tokens or doc_len == 0:
             return 0.0
 
-        doc_counter = Counter(doc_tokens)
-        doc_len = len(doc_tokens)
         score = 0.0
-
         for q in query_tokens:
             count = doc_counter.get(q, 0)
             if count > 0:
@@ -101,15 +106,22 @@ class VectorStoreService:
         session_chunks = []
         for c in chunks:
             chunk_text = c["text"]
+            tokens = self._tokenize(chunk_text)
             session_chunks.append({
                 "id": f"{session_id}_chunk_{c['index']}",
                 "session_id": session_id,
                 "chunk_index": str(c["index"]),
                 "text": chunk_text,
-                "tokens": self._tokenize(chunk_text),
+                "tokens": tokens,
+                "token_counter": Counter(tokens),
+                "token_len": len(tokens),
             })
 
         self._document_chunks[session_id] = session_chunks
+        # Invalidate document cache for this session
+        keys_to_remove = [k for k in self._doc_cache if k.startswith(session_id)]
+        for k in keys_to_remove:
+            self._doc_cache.pop(k, None)
         logger.info("Added %d document chunks for session %s", len(chunks), session_id[:8])
 
     def search_statutes(
@@ -122,6 +134,12 @@ class VectorStoreService:
         if not self._initialized:
             self.initialize()
 
+        # Check cache
+        cache_key = f"{query}::{document_type}::{n_results}"
+        if cache_key in self._statute_cache:
+            self._statute_cache.move_to_end(cache_key)
+            return self._statute_cache[cache_key]
+
         query_tokens = self._tokenize(query)
         scored: list[tuple[float, dict[str, Any]]] = []
 
@@ -130,13 +148,15 @@ class VectorStoreService:
             if document_type and item_type not in (document_type, "general"):
                 continue
 
-            score = self._compute_relevance(query_tokens, item["tokens"])
+            score = self._compute_relevance(
+                query_tokens, item["token_counter"], item["token_len"]
+            )
             scored.append((score, item))
 
         scored.sort(key=lambda x: x[0], reverse=True)
         top_items = scored[:n_results]
 
-        return [
+        result = [
             {
                 "text": item["text"],
                 "act": item["act"],
@@ -147,6 +167,13 @@ class VectorStoreService:
             }
             for _, item in top_items
         ]
+
+        # Store in cache
+        self._statute_cache[cache_key] = result
+        if len(self._statute_cache) > self._cache_max_size:
+            self._statute_cache.popitem(last=False)
+
+        return result
 
     def search_document(
         self,
@@ -159,17 +186,25 @@ class VectorStoreService:
         if not chunks:
             return []
 
+        # Check cache
+        cache_key = f"{session_id}::{query}::{n_results}"
+        if cache_key in self._doc_cache:
+            self._doc_cache.move_to_end(cache_key)
+            return self._doc_cache[cache_key]
+
         query_tokens = self._tokenize(query)
         scored: list[tuple[float, dict[str, Any]]] = []
 
         for c in chunks:
-            score = self._compute_relevance(query_tokens, c["tokens"])
+            score = self._compute_relevance(
+                query_tokens, c["token_counter"], c["token_len"]
+            )
             scored.append((score, c))
 
         scored.sort(key=lambda x: x[0], reverse=True)
         top_items = scored[:n_results]
 
-        return [
+        result = [
             {
                 "text": c["text"],
                 "session_id": c["session_id"],
@@ -177,6 +212,13 @@ class VectorStoreService:
             }
             for _, c in top_items
         ]
+
+        # Store in cache
+        self._doc_cache[cache_key] = result
+        if len(self._doc_cache) > self._cache_max_size:
+            self._doc_cache.popitem(last=False)
+
+        return result
 
     def _chunk_text(self, text: str) -> list[dict[str, Any]]:
         """Split text into overlapping chunks for indexing."""
@@ -203,3 +245,7 @@ class VectorStoreService:
     def clear_session(self, session_id: str) -> None:
         """Remove all document chunks for a session."""
         self._document_chunks.pop(session_id, None)
+        # Clear related caches
+        keys_to_remove = [k for k in self._doc_cache if k.startswith(session_id)]
+        for k in keys_to_remove:
+            self._doc_cache.pop(k, None)

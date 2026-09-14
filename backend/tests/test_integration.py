@@ -132,3 +132,78 @@ class TestGeminiServiceMocked:
         with patch.object(service.client.models, 'generate_content', return_value=mock_response):
             result = service.generate(prompt="Test", response_schema=TestSchema)
             assert result["answer"] == "hello"
+
+
+class TestEndpointsIntegration:
+    """Integration tests for document flow and error handling."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        from app.main import app
+
+        self.client = TestClient(app)
+
+    def test_describe_situation_creates_session(self):
+        """Describing a situation should return a document session and detected type."""
+        response = self.client.post(
+            "/api/documents/describe",
+            json={"description": "My landlord is demanding 10 months security deposit in Pune.", "language": "en"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "document_id" in data
+        assert data["detected_type"] == "rental"
+
+    def test_clarify_nonexistent_session_returns_404(self):
+        """Querying clarify for a non-existent document must return 404."""
+        response = self.client.post("/api/documents/non-existent-session-id/clarify")
+        assert response.status_code == 404
+
+    def test_analyze_nonexistent_session_returns_404(self):
+        """Querying analyze for an unknown document must return 404."""
+        response = self.client.post("/api/documents/unknown-session-id/analyze")
+        assert response.status_code == 404
+
+    def test_ask_nonexistent_session_returns_404(self):
+        """Querying ask for an unknown document must return 404."""
+        response = self.client.post(
+            "/api/documents/unknown-session-id/ask",
+            json={"question": "Can I get my deposit back?"},
+        )
+        assert response.status_code == 404
+
+    def test_export_nonexistent_session_returns_404(self):
+        """Querying export for an unknown document must return 404."""
+        response = self.client.post("/api/documents/unknown-session-id/export")
+        assert response.status_code == 404
+
+    def test_describe_then_export_flow(self):
+        """Describe situation followed by export should generate a brief."""
+        desc_resp = self.client.post(
+            "/api/documents/describe",
+            json={"description": "Defective refrigerator purchased with no warranty service provided.", "language": "en"},
+        )
+        assert desc_resp.status_code == 200
+        doc_id = desc_resp.json()["document_id"]
+
+        with patch("app.services.export_service.get_gemini_service") as mock_gemini_getter:
+            mock_gemini = MagicMock()
+            mock_payload = {
+                "summary": "Consumer complaint regarding defective appliance.",
+                "risk_flags": [],
+                "document_overview": "Consumer complaint regarding defective appliance.",
+                "unusual_findings": ["Failure to provide warranty support."],
+                "questions_for_lawyer": ["Can I file a case in District Consumer Forum?"],
+            }
+            mock_gemini.generate_with_document.return_value = mock_payload
+            mock_gemini.generate.return_value = mock_payload
+            mock_gemini_getter.return_value = mock_gemini
+
+            with patch("app.services.analysis_service.get_gemini_service", return_value=mock_gemini):
+                export_resp = self.client.post(f"/api/documents/{doc_id}/export")
+                assert export_resp.status_code == 200
+                export_data = export_resp.json()
+                assert export_data["document_id"] == doc_id
+                assert "Lawyer Preparation Brief" in export_data["content"]
+
+

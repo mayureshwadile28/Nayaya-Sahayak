@@ -34,8 +34,10 @@ export function renderSafeMarkdown(input: string): string {
   // Inline code: `text`
   safe = safe.replace(/`(.+?)`/g, '<code>$1</code>');
 
-  // Line breaks
-  safe = safe.replace(/\n/g, '<br/>');
+  // Headings
+  safe = safe.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+  safe = safe.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+  safe = safe.replace(/^# (.+)$/gm, '<h2>$1</h2>');
 
   // Bullet lists: lines starting with - or *
   safe = safe.replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>');
@@ -44,10 +46,8 @@ export function renderSafeMarkdown(input: string): string {
   // Numbered lists
   safe = safe.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
 
-  // Headings
-  safe = safe.replace(/^### (.+)$/gm, '<h4>$1</h4>');
-  safe = safe.replace(/^## (.+)$/gm, '<h3>$1</h3>');
-  safe = safe.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+  // Line breaks for non-list text
+  safe = safe.replace(/\n/g, '<br/>');
 
   return safe;
 }

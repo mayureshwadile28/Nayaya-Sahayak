@@ -1,6 +1,7 @@
-"""FastAPI application entry point with lifespan, CORS, and rate limiting."""
+"""FastAPI application entry point with lifespan, CORS, rate limiting, and compression."""
 
 import logging
+import os
 import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -20,6 +21,8 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.responses import Response
 
 from app.config import settings
 from app.models.database import init_db
@@ -103,10 +106,29 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         logger.exception("Unhandled server error on %s: %s", request.url.path, exc)
+        # Mask internal details in production to prevent information leakage
+        is_production = not os.getenv("DEV_MODE", "")
+        detail = "An internal server error occurred. Please try again later." if is_production else f"Server error: {exc}"
         return JSONResponse(
             status_code=500,
-            content={"detail": f"Server error: {exc}"},
+            content={"detail": detail},
         )
+
+    # GZip compression — reduces response payloads by ~70%
+    app.add_middleware(GZipMiddleware, minimum_size=500)
+
+    # Security headers middleware
+    @app.middleware("http")
+    async def add_security_headers(request: Request, call_next) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        if request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
 
     # CORS for frontend dev server and Vercel deployments
     app.add_middleware(

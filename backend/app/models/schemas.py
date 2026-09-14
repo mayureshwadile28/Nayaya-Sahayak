@@ -1,6 +1,6 @@
 """Pydantic models for request/response schemas."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -182,7 +182,7 @@ class ChatMessage(BaseModel):
 
     role: str = Field(..., pattern="^(user|assistant)$")
     content: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     citations: list[dict[str, str]] | None = None
 
 

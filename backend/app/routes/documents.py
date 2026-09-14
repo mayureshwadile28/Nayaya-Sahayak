@@ -30,11 +30,11 @@ from app.models.schemas import (
 )
 from app.services.analysis_service import AnalysisService
 from app.services.dependencies import (
+    get_document_service,
     get_extraction_service,
     get_redaction_service,
     get_vector_store,
 )
-from app.services.document_service import DocumentService
 from app.services.rag_service import RAGService
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ async def upload_document(
     File is validated, text is extracted, PII is redacted,
     and the document is prepared for analysis.
     """
-    doc_service = DocumentService()
+    doc_service = get_document_service(request)
 
     # Read file content
     content = await file.read()

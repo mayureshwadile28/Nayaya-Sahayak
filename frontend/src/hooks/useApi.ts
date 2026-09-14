@@ -1,6 +1,7 @@
 /**
  * API client for Nyaya Sahayak backend.
  * All calls go through this module — no direct fetch() elsewhere.
+ * Supports AbortSignal for cancellable requests and safe error handling.
  */
 
 import type {
@@ -48,13 +49,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function uploadDocument(file: File): Promise<DocumentUploadResponse> {
+export async function uploadDocument(
+  file: File,
+  signal?: AbortSignal
+): Promise<DocumentUploadResponse> {
   const formData = new FormData();
   formData.append('file', file);
 
   const response = await fetch(`${API_BASE}/documents`, {
     method: 'POST',
     body: formData,
+    signal,
   });
 
   return handleResponse<DocumentUploadResponse>(response);
@@ -62,7 +67,8 @@ export async function uploadDocument(file: File): Promise<DocumentUploadResponse
 
 export async function describeSituation(
   description: string,
-  language: Language = 'en'
+  language: Language = 'en',
+  signal?: AbortSignal
 ): Promise<DocumentUploadResponse> {
   const body: SituationRequest = { description, language };
 
@@ -70,6 +76,7 @@ export async function describeSituation(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal,
   });
 
   return handleResponse<DocumentUploadResponse>(response);
@@ -77,7 +84,8 @@ export async function describeSituation(
 
 export async function analyzeDocument(
   documentId: string,
-  language: Language = 'en'
+  language: Language = 'en',
+  signal?: AbortSignal
 ): Promise<AnalysisResponse> {
   const body = { language };
   const response = await fetch(`${API_BASE}/documents/${documentId}/analyze`, {
@@ -86,6 +94,7 @@ export async function analyzeDocument(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
+    signal,
   });
 
   return handleResponse<AnalysisResponse>(response);
@@ -94,7 +103,8 @@ export async function analyzeDocument(
 export async function askQuestion(
   documentId: string,
   question: string,
-  language: Language = 'en'
+  language: Language = 'en',
+  signal?: AbortSignal
 ): Promise<AskResponse> {
   const body: AskRequest = { question, language };
 
@@ -102,6 +112,7 @@ export async function askQuestion(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal,
   });
 
   return handleResponse<AskResponse>(response);
@@ -109,11 +120,14 @@ export async function askQuestion(
 
 export async function getRights(
   docType: string,
-  state: string
+  state: string,
+  signal?: AbortSignal
 ): Promise<RightsResponse> {
   const params = new URLSearchParams({ doc_type: docType, state });
 
-  const response = await fetch(`${API_BASE}/rights?${params.toString()}`);
+  const response = await fetch(`${API_BASE}/rights?${params.toString()}`, {
+    signal,
+  });
 
   return handleResponse<RightsResponse>(response);
 }
@@ -121,7 +135,8 @@ export async function getRights(
 export async function exportBrief(
   documentId: string,
   language: Language = 'en',
-  format: string = 'markdown'
+  format: string = 'markdown',
+  signal?: AbortSignal
 ): Promise<ExportResponse> {
   const body: ExportRequest = { language, format: format as 'markdown' | 'pdf' };
 
@@ -129,14 +144,17 @@ export async function exportBrief(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+    signal,
   });
 
   return handleResponse<ExportResponse>(response);
 }
 
-export async function healthCheck(): Promise<{ status: string; service: string }> {
-  const response = await fetch(`${API_BASE}/health`);
+export async function healthCheck(
+  signal?: AbortSignal
+): Promise<{ status: string; service: string }> {
+  const response = await fetch(`${API_BASE}/health`, { signal });
   return handleResponse<{ status: string; service: string }>(response);
 }
 
-export { ApiError };
+export { ApiError, API_BASE };
