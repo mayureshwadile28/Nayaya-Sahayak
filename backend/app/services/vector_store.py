@@ -22,7 +22,7 @@ class VectorStoreService:
 
     def __init__(self) -> None:
         """Initialize ChromaDB client in embedded mode."""
-        chroma_dir = settings.base_dir / "chroma_data"
+        chroma_dir = settings.chroma_dir
         chroma_dir.mkdir(parents=True, exist_ok=True)
 
         self.client = chromadb.PersistentClient(

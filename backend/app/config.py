@@ -25,7 +25,19 @@ class Settings(BaseSettings):
     # Paths
     base_dir: Path = Path(__file__).resolve().parent.parent
     data_dir: Path = Path(__file__).resolve().parent / "data"
-    upload_dir: Path = Path(__file__).resolve().parent.parent / "uploads"
+    
+    @property
+    def writable_dir(self) -> Path:
+        import os
+        return Path("/tmp") if os.getenv("VERCEL") else self.base_dir
+        
+    @property
+    def upload_dir(self) -> Path:
+        return self.writable_dir / "uploads"
+        
+    @property
+    def chroma_dir(self) -> Path:
+        return self.writable_dir / "chroma_data"
 
     # Allowed file types
     allowed_extensions: list[str] = [".pdf", ".docx", ".doc", ".jpg", ".jpeg", ".png"]
