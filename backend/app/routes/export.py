@@ -13,6 +13,7 @@ from app.models.schemas import (
     ExportResponse,
 )
 from app.services.analysis_service import AnalysisService
+from app.services.dependencies import get_extraction_service
 from app.services.export_service import ExportService
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ async def export_brief(
         raise HTTPException(status_code=404, detail="Document data not available.")
 
     # Run analysis first to get structured data
-    extraction_service = request.app.state.extraction_service
+    extraction_service = get_extraction_service(request)
     analysis_service = AnalysisService(extraction_service)
 
     doc_type_str = doc_data.get("original_type", "unknown")

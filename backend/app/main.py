@@ -4,8 +4,9 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -28,25 +29,28 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: initialize heavy resources once at startup."""
     logger.info("Starting Nyaya Sahayak backend...")
 
-    # Initialize database
-    await init_db()
+    try:
+        # Initialize database
+        await init_db()
 
-    # Load spaCy model once
-    extraction_service = ExtractionService()
-    extraction_service.load_models()
-    app.state.extraction_service = extraction_service
+        # Load spaCy model once
+        extraction_service = ExtractionService()
+        extraction_service.load_models()
+        app.state.extraction_service = extraction_service
 
-    # Initialize Presidio once
-    redaction_service = RedactionService()
-    app.state.redaction_service = redaction_service
+        # Initialize Presidio once
+        redaction_service = RedactionService()
+        app.state.redaction_service = redaction_service
 
-    # Initialize vector store with statute corpus
-    vector_store = VectorStoreService()
-    vector_store.initialize()
-    app.state.vector_store = vector_store
+        # Initialize vector store with statute corpus
+        vector_store = VectorStoreService()
+        vector_store.initialize()
+        app.state.vector_store = vector_store
 
-    # Create upload directory
-    settings.upload_dir.mkdir(parents=True, exist_ok=True)
+        # Create upload directory
+        settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        logger.error("Non-fatal startup initialization error (will use lazy fallbacks): %s", e)
 
     logger.info("Nyaya Sahayak backend ready.")
     yield
@@ -72,10 +76,23 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    # CORS for frontend dev server
+    # Global exception handler to provide helpful error messages
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        logger.exception("Unhandled server error on %s: %s", request.url.path, exc)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Server error: {exc}"},
+        )
+
+    # CORS for frontend dev server and Vercel deployments
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_origins=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ],
+        allow_origin_regex=r"^https://.*\.vercel\.app$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

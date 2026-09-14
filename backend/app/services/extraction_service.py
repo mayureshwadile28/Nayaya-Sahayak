@@ -244,8 +244,7 @@ class ExtractionService:
             ExtractionResult with all extracted information.
         """
         if self.nlp is None:
-            msg = "spaCy model not loaded. Call load_models() first."
-            raise RuntimeError(msg)
+            self.load_models()
 
         # Detect type if not provided
         if document_type is None:

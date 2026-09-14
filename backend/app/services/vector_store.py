@@ -21,14 +21,20 @@ class VectorStoreService:
     """ChromaDB-based vector store for RAG retrieval."""
 
     def __init__(self) -> None:
-        """Initialize ChromaDB client in embedded mode."""
-        chroma_dir = settings.chroma_dir
-        chroma_dir.mkdir(parents=True, exist_ok=True)
+        """Initialize ChromaDB client in embedded mode with fallback to ephemeral."""
+        try:
+            chroma_dir = settings.chroma_dir
+            chroma_dir.mkdir(parents=True, exist_ok=True)
 
-        self.client = chromadb.PersistentClient(
-            path=str(chroma_dir),
-            settings=ChromaSettings(anonymized_telemetry=False)
-        )
+            self.client = chromadb.PersistentClient(
+                path=str(chroma_dir),
+                settings=ChromaSettings(anonymized_telemetry=False)
+            )
+        except Exception as e:
+            logger.warning("Failed to initialize PersistentClient (%s), falling back to EphemeralClient", e)
+            self.client = chromadb.EphemeralClient(
+                settings=ChromaSettings(anonymized_telemetry=False)
+            )
 
         self.statutes_collection: Any = None
         self.documents_collection: Any = None

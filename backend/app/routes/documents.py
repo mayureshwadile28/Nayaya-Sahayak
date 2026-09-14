@@ -29,6 +29,11 @@ from app.models.schemas import (
     SituationRequest,
 )
 from app.services.analysis_service import AnalysisService
+from app.services.dependencies import (
+    get_extraction_service,
+    get_redaction_service,
+    get_vector_store,
+)
 from app.services.document_service import DocumentService
 from app.services.rag_service import RAGService
 
@@ -83,11 +88,11 @@ async def upload_document(
         )
 
     # Run PII redaction BEFORE any persistence
-    redaction_service = request.app.state.redaction_service
+    redaction_service = get_redaction_service(request)
     redacted_text = redaction_service.redact(text)
 
     # Detect document type
-    extraction_service = request.app.state.extraction_service
+    extraction_service = get_extraction_service(request)
     doc_type = extraction_service.detect_document_type(redacted_text)
 
     # Create session
@@ -106,7 +111,7 @@ async def upload_document(
     })
 
     # Add document chunks to vector store
-    vector_store = request.app.state.vector_store
+    vector_store = get_vector_store(request)
     vector_store.add_document_chunks(session_id, redacted_text)
 
     return DocumentUploadResponse(
@@ -128,11 +133,11 @@ async def describe_situation(
     The description is treated as the document text for analysis.
     """
     # Run PII redaction on the description
-    redaction_service = request.app.state.redaction_service
+    redaction_service = get_redaction_service(request)
     redacted_text = redaction_service.redact(body.description)
 
     # Detect situation type
-    extraction_service = request.app.state.extraction_service
+    extraction_service = get_extraction_service(request)
     doc_type = extraction_service.detect_document_type(redacted_text)
 
     # Create session
@@ -150,7 +155,7 @@ async def describe_situation(
     })
 
     # Add to vector store
-    vector_store = request.app.state.vector_store
+    vector_store = get_vector_store(request)
     vector_store.add_document_chunks(session_id, redacted_text)
 
     return DocumentUploadResponse(
@@ -176,7 +181,7 @@ async def clarify_document(
     if not doc_data:
         raise HTTPException(status_code=404, detail="Document data not available.")
 
-    extraction_service = request.app.state.extraction_service
+    extraction_service = get_extraction_service(request)
     analysis_service = AnalysisService(extraction_service)
 
     from app.models.schemas import DocumentType
@@ -236,7 +241,7 @@ async def analyze_document(
         )
 
     # Run analysis
-    extraction_service = request.app.state.extraction_service
+    extraction_service = get_extraction_service(request)
     analysis_service = AnalysisService(extraction_service)
 
     from app.models.schemas import DocumentType
@@ -285,7 +290,7 @@ async def ask_question(
     chat_history = get_chat_history(document_id)
 
     # Run RAG query
-    vector_store = request.app.state.vector_store
+    vector_store = get_vector_store(request)
     rag_service = RAGService(vector_store)
 
     result = rag_service.ask(

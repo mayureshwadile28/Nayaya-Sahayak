@@ -25,19 +25,31 @@ class Settings(BaseSettings):
     # Paths
     base_dir: Path = Path(__file__).resolve().parent.parent
     data_dir: Path = Path(__file__).resolve().parent / "data"
-    
+
     @property
     def writable_dir(self) -> Path:
         import os
-        return Path("/tmp") if os.getenv("VERCEL") else self.base_dir
-        
+        if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+            return Path("/tmp")
+        try:
+            test_file = self.base_dir / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            return self.base_dir
+        except (OSError, PermissionError):
+            return Path("/tmp")
+
     @property
     def upload_dir(self) -> Path:
         return self.writable_dir / "uploads"
-        
+
     @property
     def chroma_dir(self) -> Path:
         return self.writable_dir / "chroma_data"
+
+    @property
+    def db_path(self) -> Path:
+        return self.writable_dir / "session_metadata.db"
 
     # Allowed file types
     allowed_extensions: list[str] = [".pdf", ".docx", ".doc", ".jpg", ".jpeg", ".png"]
