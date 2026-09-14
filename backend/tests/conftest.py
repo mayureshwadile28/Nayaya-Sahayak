@@ -1,5 +1,10 @@
 """Test fixtures for Nyaya Sahayak backend tests."""
 
+import os
+
+# Set a dummy API key for tests so that GeminiService doesn't fail on init
+os.environ["GEMINI_API_KEY"] = "dummy_key_for_testing"
+
 import pytest
 from fastapi.testclient import TestClient
 
