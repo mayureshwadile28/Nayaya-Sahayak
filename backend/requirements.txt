@@ -10,6 +10,7 @@ google-genai>=1.50.0
 
 # NLP
 spacy>=3.7.0
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 # LexNLP - install separately: pip install lexnlp
 # Note: May require Python <3.13; fallback to spacy+regex if unavailable
 
