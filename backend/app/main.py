@@ -30,27 +30,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Starting Nyaya Sahayak backend...")
 
     try:
-        # Initialize database
+        # Initialize in-memory database
         await init_db()
-
-        # Load spaCy model once
-        extraction_service = ExtractionService()
-        extraction_service.load_models()
-        app.state.extraction_service = extraction_service
-
-        # Initialize Presidio once
-        redaction_service = RedactionService()
-        app.state.redaction_service = redaction_service
 
         # Initialize vector store with statute corpus
         vector_store = VectorStoreService()
         vector_store.initialize()
         app.state.vector_store = vector_store
 
-        # Create upload directory
+        # Services initialized with on-demand lazy loading
+        app.state.extraction_service = ExtractionService()
+        app.state.redaction_service = RedactionService()
+
+        # Ensure writable upload directory
         settings.upload_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        logger.error("Non-fatal startup initialization error (will use lazy fallbacks): %s", e)
+        logger.error("Non-fatal startup initialization error: %s", e)
 
     logger.info("Nyaya Sahayak backend ready.")
     yield

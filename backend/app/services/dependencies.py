@@ -21,7 +21,6 @@ def get_extraction_service(request: Request | None = None) -> ExtractionService:
 
     if _extraction_service is None:
         _extraction_service = ExtractionService()
-        _extraction_service.load_models()
 
     if request:
         request.app.state.extraction_service = _extraction_service

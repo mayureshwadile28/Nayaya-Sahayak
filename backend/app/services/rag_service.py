@@ -1,4 +1,4 @@
-"""RAG service: ChromaDB vector search + Gemini grounded Q&A."""
+"""RAG service: In-memory vector retrieval + Gemini grounded Q&A."""
 
 import logging
 from typing import Any
