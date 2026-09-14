@@ -214,8 +214,12 @@ class ExtractionService:
     def load_models(self) -> None:
         """Load spaCy model. Called once at startup."""
         logger.info("Loading spaCy model en_core_web_sm...")
-        self.nlp = spacy.load("en_core_web_sm")
-        logger.info("spaCy model loaded.")
+        try:
+            self.nlp = spacy.load("en_core_web_sm")
+            logger.info("spaCy model loaded.")
+        except Exception as e:
+            logger.warning("spaCy model en_core_web_sm could not be loaded: %s", e)
+            self.nlp = None
 
     def detect_document_type(self, text: str) -> DocumentType:
         """Detect the document type from text content using regex patterns."""
@@ -252,23 +256,26 @@ class ExtractionService:
 
         result = ExtractionResult(document_type=document_type)
 
-        # Extract entities via spaCy NER
-        doc = self.nlp(text[:100000])  # Limit to avoid memory issues
-
         seen_persons: set[str] = set()
         seen_dates: set[str] = set()
         seen_amounts: set[str] = set()
 
-        for ent in doc.ents:
-            if ent.label_ == "PERSON" and ent.text not in seen_persons:
-                result.parties.append(ent.text)
-                seen_persons.add(ent.text)
-            elif ent.label_ == "DATE" and ent.text not in seen_dates:
-                result.dates.append(ent.text)
-                seen_dates.add(ent.text)
-            elif ent.label_ == "MONEY" and ent.text not in seen_amounts:
-                result.amounts.append(ent.text)
-                seen_amounts.add(ent.text)
+        # Extract entities via spaCy NER if available
+        if self.nlp is not None:
+            try:
+                doc = self.nlp(text[:100000])  # Limit to avoid memory issues
+                for ent in doc.ents:
+                    if ent.label_ == "PERSON" and ent.text not in seen_persons:
+                        result.parties.append(ent.text)
+                        seen_persons.add(ent.text)
+                    elif ent.label_ == "DATE" and ent.text not in seen_dates:
+                        result.dates.append(ent.text)
+                        seen_dates.add(ent.text)
+                    elif ent.label_ == "MONEY" and ent.text not in seen_amounts:
+                        result.amounts.append(ent.text)
+                        seen_amounts.add(ent.text)
+            except Exception as e:
+                logger.warning("spaCy NER extraction failed: %s", e)
 
         # Extract amounts via regex (Indian currency patterns)
         inr_pattern = r"(?:Rs\.?|INR|₹)\s*[\d,]+(?:\.\d{1,2})?"

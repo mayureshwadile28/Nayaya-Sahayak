@@ -1,10 +1,20 @@
 """FastAPI application entry point with lifespan, CORS, and rate limiting."""
 
 import logging
+import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, Request
+# Ensure backend root and app directory are in sys.path
+_backend_dir = str(Path(__file__).resolve().parent.parent)
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
+_app_dir = str(Path(__file__).resolve().parent)
+if _app_dir not in sys.path:
+    sys.path.insert(0, _app_dir)
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -43,7 +53,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.redaction_service = RedactionService()
 
         # Ensure writable upload directory
-        settings.upload_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            settings.upload_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            logger.warning("Could not create upload directory: %s", e)
     except Exception as e:
         logger.error("Non-fatal startup initialization error: %s", e)
 
@@ -71,7 +84,22 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    # Global exception handler to provide helpful error messages
+    # Exception handlers: do not swallow HTTPExceptions or RateLimitExceeded as 500
+    @app.exception_handler(RateLimitExceeded)
+    async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Rate limit exceeded. Please wait a moment and try again."},
+        )
+
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers=getattr(exc, "headers", None),
+        )
+
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         logger.exception("Unhandled server error on %s: %s", request.url.path, exc)
@@ -98,6 +126,9 @@ def create_app() -> FastAPI:
     app.include_router(rights.router, prefix="/api")
     app.include_router(export.router, prefix="/api")
 
+    @app.get("/")
+    @app.get("/health")
+    @app.get("/api")
     @app.get("/api/health")
     async def health_check() -> dict[str, str]:
         return {"status": "ok", "service": "nyaya-sahayak"}
