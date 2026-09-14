@@ -1,7 +1,8 @@
 """Integration tests for API endpoints with Gemini calls mocked."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 
@@ -11,6 +12,7 @@ class TestRightsEndpoint:
     @pytest.fixture(autouse=True)
     def setup(self):
         from fastapi import FastAPI
+
         from app.routes.rights import router
 
         app = FastAPI()
@@ -66,8 +68,9 @@ class TestGeminiServiceMocked:
     """Tests for Gemini service with mocked API calls."""
 
     def test_generate_with_schema(self):
-        from app.services.gemini_service import GeminiService
         from pydantic import BaseModel, Field
+
+        from app.services.gemini_service import GeminiService
 
         class TestSchema(BaseModel):
             summary: str = Field(description="Test summary")
@@ -99,8 +102,9 @@ class TestGeminiServiceMocked:
                 service.generate(prompt="Test")
 
     def test_generate_handles_invalid_json(self):
-        from app.services.gemini_service import GeminiService
         from pydantic import BaseModel, Field
+
+        from app.services.gemini_service import GeminiService
 
         class TestSchema(BaseModel):
             value: str = Field(description="Test")
@@ -114,8 +118,9 @@ class TestGeminiServiceMocked:
                 service.generate(prompt="Test", response_schema=TestSchema)
 
     def test_generate_extracts_json_from_markdown(self):
-        from app.services.gemini_service import GeminiService
         from pydantic import BaseModel, Field
+
+        from app.services.gemini_service import GeminiService
 
         class TestSchema(BaseModel):
             answer: str = Field(description="Answer")

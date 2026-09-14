@@ -161,7 +161,7 @@ class AnalysisService:
         """Generate 0-3 clarifying questions based on the document text."""
         try:
             gemini = get_gemini_service()
-            
+
             type_context = {
                 DocumentType.RENTAL: "rental/lease agreement",
                 DocumentType.EMPLOYMENT: "employment or gig-work agreement",
@@ -169,7 +169,7 @@ class AnalysisService:
                 DocumentType.UNKNOWN: "unknown document type",
             }
             dt = document_type or DocumentType.UNKNOWN
-            
+
             lang_instruction = ""
             if language == "hi":
                 lang_instruction = "\nCRITICAL: You MUST write the questions in Hindi."

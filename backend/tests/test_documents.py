@@ -1,6 +1,7 @@
 """Tests for document service (validation, text extraction)."""
 
 import pytest
+
 from app.services.document_service import DocumentService
 
 

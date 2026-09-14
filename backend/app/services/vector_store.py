@@ -4,7 +4,6 @@ Embedded mode — no external server required.
 """
 
 import logging
-from pathlib import Path
 from typing import Any
 
 import chromadb

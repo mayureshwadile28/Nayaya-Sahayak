@@ -250,8 +250,8 @@ async def analyze_document(
     chat_history = get_chat_history(document_id)
 
     result = analysis_service.analyze(
-        doc_data["text"], 
-        doc_type, 
+        doc_data["text"],
+        doc_type,
         language=body.language.value if body else "en",
         chat_history=chat_history
     )

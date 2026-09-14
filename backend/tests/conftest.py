@@ -18,7 +18,7 @@ def sample_rental_text() -> str:
     1. MONTHLY RENT: The tenant shall pay a monthly rent of Rs. 25,000 (Rupees
     Twenty Five Thousand only) on or before the 5th of each month.
 
-    2. SECURITY DEPOSIT: The tenant has paid a security deposit of 6 months rent 
+    2. SECURITY DEPOSIT: The tenant has paid a security deposit of 6 months rent
     (Rs. 1,50,000) which shall be refunded upon vacating the premises.
 
     3. LOCK-IN PERIOD: This agreement has a lock-in period of 18 months during
@@ -111,6 +111,7 @@ def sample_consumer_text() -> str:
 def client() -> TestClient:
     """Create a test client that doesn't run the full lifespan."""
     from fastapi import FastAPI
+
     from app.routes import documents, export, rights
 
     test_app = FastAPI()

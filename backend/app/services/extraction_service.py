@@ -318,7 +318,7 @@ class ExtractionService:
     def _extract_key_terms(self, text: str, document_type: DocumentType) -> dict[str, str]:
         """Extract key terms specific to the document type."""
         terms: dict[str, str] = {}
-        text_lower = text.lower()
+        text.lower()
 
         if document_type == DocumentType.RENTAL:
             # Monthly rent amount

@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 
 from app.config import settings
-from app.models.schemas import DocumentType
 
 logger = logging.getLogger(__name__)
 

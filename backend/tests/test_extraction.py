@@ -1,6 +1,7 @@
 """Tests for deterministic legal NLP extraction — no network calls."""
 
 import pytest
+
 from app.models.schemas import DocumentType, RiskSeverity
 from app.services.extraction_service import ExtractionService
 

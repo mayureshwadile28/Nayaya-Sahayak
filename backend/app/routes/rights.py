@@ -7,7 +7,7 @@ import json
 import logging
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Query, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 

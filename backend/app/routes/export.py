@@ -6,9 +6,8 @@ from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.models.database import get_document_data, get_session, get_chat_history
+from app.models.database import get_chat_history, get_document_data, get_session
 from app.models.schemas import (
-    AnalysisResponse,
     DocumentType,
     ExportRequest,
     ExportResponse,
@@ -58,8 +57,8 @@ async def export_brief(
         doc_type = DocumentType.UNKNOWN
 
     analysis = analysis_service.analyze(
-        doc_data["text"], 
-        doc_type, 
+        doc_data["text"],
+        doc_type,
         language=body.language.value
     )
     analysis.document_id = document_id
